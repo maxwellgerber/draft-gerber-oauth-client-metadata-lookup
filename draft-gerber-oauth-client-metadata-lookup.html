@@ -1221,14 +1221,14 @@ it can also be used by clients registered through other means.<a href="#section-
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
 <p id="section-1-1">OAuth Client ID Metadata Documents (CIMD)
-<span>[<a href="#I-D.ietf-oauth-client-id-metadata-document" class="cite xref">I-D.ietf-oauth-client-id-metadata-document</a>]</span> let clients publish metadata at a
+<span>[<a href="#I-D.ietf-oauth-client-id-metadata-document" class="cite xref">I-D.ietf-oauth-client-id-metadata-document</a>]</span> enable clients to publish metadata at a
 URL used as their client identifier. The published document represents a client's
 view of itself and its own capabilities. The published document does not tell a
 client which values a given authorization server accepts or if the server applies
 additional defaults. Incompatibility is only discovered when an authorization
 attempt fails.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">That failure is often invisible to the client. When the client identifier or
-redirect URI is the problem, Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> requires the AS not
+redirect URI is the problem, Section 4.1.2.1 of <span>[<a href="#I-D.ietf-oauth-v2-1" class="cite xref">I-D.ietf-oauth-v2-1</a>]</span> requires the AS not
 to redirect back to the client. The user is left at an AS error page, and the
 client never learns why the flow stopped.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">This document defines an unauthenticated client metadata lookup operation. CIMD
@@ -1288,18 +1288,25 @@ of a runtime error presented to the user during the authorization flow.<a href="
 <p id="section-3.2-1">An AS can change a client's configuration as part of rolling out a new
 requirement and expose the result through this endpoint, so clients can adapt
 without first failing a user's request.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">For example, an AS migrating to Pushed Authorization Requests (PAR) <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>
-can set the <code>require_pushed_authorization_requests</code> client metadata value,
-defined in Section 6 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>, for one cohort of clients at a time. A
-client that finds <code>true</code> in its lookup response knows it must use PAR at this
-AS. Without the lookup, the first signal is a rejected authorization request in
-front of a user.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">For example, an AS rolling out sender-constrained access tokens with DPoP
+<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> can set the <code>dpop_bound_access_tokens</code> client metadata value,
+defined in Section 5.2 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>, for one cohort of clients at a time.
+When the value is <code>true</code>, the AS rejects token requests from the client that
+lack a DPoP proof. No AS metadata parameter signals this requirement:
+<code>dpop_signing_alg_values_supported</code> advertises support for DPoP, not whether it
+is required. A client that finds <code>true</code> in its lookup response knows it must
+use DPoP at this AS. Without the lookup, the first signal is a rejected token
+request, after the user has already authenticated and consented.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 <p id="section-3.2-3">Rollout through this endpoint suits fields whose values reflect AS policy, such
-as requirements the AS imposes on the client. It is not a way for an AS to
-change values a client declares about itself, such as its redirect URIs or the
-algorithms it signs with. Whether AS policy can set a given field is governed
-by that field's definition, not by this specification. Clients learn of changes
-only by repeating the lookup; this specification defines no change notification.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+as requirements the AS enforces on the client. It is not a way for an AS to
+change values that only describe the client, such as its redirect URIs or the
+algorithms it signs with. <code>dpop_bound_access_tokens</code> is phrased as a client
+declaration, but it obliges the AS to reject non-DPoP token requests, and
+Section 5.2 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span> anticipates AS-managed client configuration. An AS
+that sets the value for a client reports it here. Whether AS policy can set a
+given field is governed by that field's definition, not by this
+specification. Clients learn of changes only by repeating the lookup; this
+specification defines no change notification.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="relationship-to-client-specific-as-metadata">
@@ -1311,12 +1318,13 @@ only by repeating the lookup; this specification defines no change notification.
 so an AS can tailor its advertised capabilities to a client. The mechanisms
 are complementary: AS metadata describes the AS using AS metadata fields;
 this endpoint describes the client using client registration metadata fields.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
-<p id="section-3.3-2">For example, <code>require_pushed_authorization_requests</code> is defined both as AS
-metadata (Section 5 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>), stating whether the AS requires PAR of
-every client, and as client metadata (Section 6 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>), stating
-whether the AS requires PAR of one client. AS metadata reports the first; this
-endpoint reports the second. Deployments using both mechanisms <span class="bcp14">MUST</span> keep the
-two views consistent. Neither mechanism requires the other.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">For example, <code>dpop_signing_alg_values_supported</code> (Section 5.1 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>)
+is AS metadata, stating which algorithms the AS accepts for DPoP proofs.
+<code>dpop_bound_access_tokens</code> (Section 5.2 of <span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>) is client metadata,
+stating whether the AS requires DPoP of one client. Client-specific AS metadata
+can tailor the first, but has no field to carry the second. Deployments using
+both mechanisms <span class="bcp14">MUST</span> keep the two views consistent. Neither mechanism requires
+the other.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1502,9 +1510,6 @@ Access-Control-Allow-Origin: *
 }
 </pre><a href="#section-8-7" class="pilcrow">¶</a>
 </div>
-<p id="section-8-8">Rate limits and temporary AS failures <span class="bcp14">MAY</span> use HTTP 429 and 503 respectively.
-Clients <span class="bcp14">MUST</span> handle HTTP errors without JSON bodies. An AS failure does not
-necessarily indicate a defect in the client's metadata.<a href="#section-8-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="caching">
@@ -1525,17 +1530,7 @@ send <code>Cache-Control: no-store</code> on errors.<a href="#section-9-2" class
       <h2 id="name-security-considerations">
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-10-1">The security considerations of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span> apply. For CIMD clients, the CIMD
-security requirements also apply, including restrictions on URL
-fetching, redirects, special-use destinations, and response sizes.<a href="#section-10-1" class="pilcrow">¶</a></p>
-<p id="section-10-2">The authorization endpoint already causes an AS to fetch an arbitrary Client
-Identifier URL in response to an unauthenticated request. This endpoint adds a
-second path with the same exposure, not a new class of risk, and the fetch
-controls an AS applies to CIMD retrieval at the authorization endpoint apply
-here unchanged. The AS <span class="bcp14">SHOULD</span> bound fetch time, document size, dependent
-fetches, and request volume to limit SSRF and denial-of-service risks.
-Attackers can submit unique URLs to avoid cache hits and induce traffic to
-third-party hosts.<a href="#section-10-2" class="pilcrow">¶</a></p>
+<p id="section-10-1">TODO!<a href="#section-10-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="privacy">
@@ -1543,11 +1538,7 @@ third-party hosts.<a href="#section-10-2" class="pilcrow">¶</a></p>
       <h2 id="name-privacy-considerations">
 <a href="#section-11" class="section-number selfRef">11. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-11-1">This endpoint returns a machine-readable result to the requester, which makes
-it a more convenient probe than an authorization endpoint error page. The AS
-<span class="bcp14">MUST</span> apply CIMD destination restrictions before any fetch, and reports
-retrieval failures uniformly, so that responses do not reveal which internal
-destinations are reachable.<a href="#section-11-1" class="pilcrow">¶</a></p>
+<p id="section-11-1">TODO!<a href="#section-11-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -1645,6 +1636,10 @@ Server Metadata registry established by <span>[<a href="#RFC8414" class="cite xr
 <a href="#section-13.2" class="section-number selfRef">13.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
+<dt id="I-D.ietf-oauth-v2-1">[I-D.ietf-oauth-v2-1]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D.</span>, <span class="refAuthor">Parecki, A.</span>, and <span class="refAuthor">T. Lodderstedt</span>, <span class="refTitle">"The OAuth 2.1 Authorization Framework"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-v2-1-16</span>, <time datetime="2026-09-02" class="refDate">2 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-16">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-16</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="MCP-Auth">[MCP-Auth]</dt>
         <dd>
 <span class="refAuthor">Model Context Protocol</span>, <span class="refTitle">"Model Context Protocol: Authorization"</span>, <time datetime="2025-11-25" class="refDate">25 November 2025</time>, <span>&lt;<a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization">https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization</a>&gt;</span>. </dd>
@@ -1653,9 +1648,9 @@ Server Metadata registry established by <span>[<a href="#RFC8414" class="cite xr
         <dd>
 <span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. Machulak</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Management Protocol"</span>, <span class="seriesInfo">RFC 7592</span>, <span class="seriesInfo">DOI 10.17487/RFC7592</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7592">https://www.rfc-editor.org/rfc/rfc7592</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC9126">[RFC9126]</dt>
+<dt id="RFC9449">[RFC9449]</dt>
         <dd>
-<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
+<span class="refAuthor">Fett, D.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Jones, M.</span>, and <span class="refAuthor">D. Waite</span>, <span class="refTitle">"OAuth 2.0 Demonstrating Proof of Possession (DPoP)"</span>, <span class="seriesInfo">RFC 9449</span>, <span class="seriesInfo">DOI 10.17487/RFC9449</span>, <time datetime="2023-09" class="refDate">September 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9449">https://www.rfc-editor.org/rfc/rfc9449</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="Watson-AS-Metadata">[Watson-AS-Metadata]</dt>
       <dd>
