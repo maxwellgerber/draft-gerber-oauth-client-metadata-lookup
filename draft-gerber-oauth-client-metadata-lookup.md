@@ -23,7 +23,8 @@ normative:
   I-D.ietf-oauth-client-id-metadata-document:
 informative:
   RFC7592:
-  RFC9126:
+  RFC9449:
+  I-D.ietf-oauth-v2-1:
   MCP-Auth:
     title: "Model Context Protocol: Authorization"
     target: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
@@ -52,7 +53,7 @@ it can also be used by clients registered through other means.
 # Introduction
 
 OAuth Client ID Metadata Documents (CIMD)
-{{I-D.ietf-oauth-client-id-metadata-document}} let clients publish metadata at a
+{{I-D.ietf-oauth-client-id-metadata-document}} enable clients to publish metadata at a
 URL used as their client identifier. The published document represents a client's
 view of itself and its own capabilities. The published document does not tell a
 client which values a given authorization server accepts or if the server applies
@@ -60,7 +61,7 @@ additional defaults. Incompatibility is only discovered when an authorization
 attempt fails.
 
 That failure is often invisible to the client. When the client identifier or
-redirect URI is the problem, Section 4.1.2.1 of {{RFC6749}} requires the AS not
+redirect URI is the problem, Section 4.1.2.1 of {{I-D.ietf-oauth-v2-1}} requires the AS not
 to redirect back to the client. The user is left at an AS error page, and the
 client never learns why the flow stopped.
 
@@ -108,19 +109,26 @@ An AS can change a client's configuration as part of rolling out a new
 requirement and expose the result through this endpoint, so clients can adapt
 without first failing a user's request.
 
-For example, an AS migrating to Pushed Authorization Requests (PAR) {{RFC9126}}
-can set the `require_pushed_authorization_requests` client metadata value,
-defined in Section 6 of {{RFC9126}}, for one cohort of clients at a time. A
-client that finds `true` in its lookup response knows it must use PAR at this
-AS. Without the lookup, the first signal is a rejected authorization request in
-front of a user.
+For example, an AS rolling out sender-constrained access tokens with DPoP
+{{RFC9449}} can set the `dpop_bound_access_tokens` client metadata value,
+defined in Section 5.2 of {{RFC9449}}, for one cohort of clients at a time.
+When the value is `true`, the AS rejects token requests from the client that
+lack a DPoP proof. No AS metadata parameter signals this requirement:
+`dpop_signing_alg_values_supported` advertises support for DPoP, not whether it
+is required. A client that finds `true` in its lookup response knows it must
+use DPoP at this AS. Without the lookup, the first signal is a rejected token
+request, after the user has already authenticated and consented.
 
 Rollout through this endpoint suits fields whose values reflect AS policy, such
-as requirements the AS imposes on the client. It is not a way for an AS to
-change values a client declares about itself, such as its redirect URIs or the
-algorithms it signs with. Whether AS policy can set a given field is governed
-by that field's definition, not by this specification. Clients learn of changes
-only by repeating the lookup; this specification defines no change notification.
+as requirements the AS enforces on the client. It is not a way for an AS to
+change values that only describe the client, such as its redirect URIs or the
+algorithms it signs with. `dpop_bound_access_tokens` is phrased as a client
+declaration, but it obliges the AS to reject non-DPoP token requests, and
+Section 5.2 of {{RFC9449}} anticipates AS-managed client configuration. An AS
+that sets the value for a client reports it here. Whether AS policy can set a
+given field is governed by that field's definition, not by this
+specification. Clients learn of changes only by repeating the lookup; this
+specification defines no change notification.
 
 ## Relationship to Client-Specific AS Metadata
 
@@ -129,12 +137,13 @@ so an AS can tailor its advertised capabilities to a client. The mechanisms
 are complementary: AS metadata describes the AS using AS metadata fields;
 this endpoint describes the client using client registration metadata fields.
 
-For example, `require_pushed_authorization_requests` is defined both as AS
-metadata (Section 5 of {{RFC9126}}), stating whether the AS requires PAR of
-every client, and as client metadata (Section 6 of {{RFC9126}}), stating
-whether the AS requires PAR of one client. AS metadata reports the first; this
-endpoint reports the second. Deployments using both mechanisms MUST keep the
-two views consistent. Neither mechanism requires the other.
+For example, `dpop_signing_alg_values_supported` (Section 5.1 of {{RFC9449}})
+is AS metadata, stating which algorithms the AS accepts for DPoP proofs.
+`dpop_bound_access_tokens` (Section 5.2 of {{RFC9449}}) is client metadata,
+stating whether the AS requires DPoP of one client. Client-specific AS metadata
+can tailor the first, but has no field to carry the second. Deployments using
+both mechanisms MUST keep the two views consistent. Neither mechanism requires
+the other.
 
 # Client Metadata Lookup Endpoint {#endpoint}
 
@@ -300,10 +309,6 @@ Access-Control-Allow-Origin: *
 }
 ~~~
 
-Rate limits and temporary AS failures MAY use HTTP 429 and 503 respectively.
-Clients MUST handle HTTP errors without JSON bodies. An AS failure does not
-necessarily indicate a defect in the client's metadata.
-
 # Caching
 
 Following the CIMD caching model, successful lookup responses MAY be cached.
@@ -316,26 +321,11 @@ send `Cache-Control: no-store` on errors.
 
 # Security Considerations {#security}
 
-The security considerations of {{RFC9700}} apply. For CIMD clients, the CIMD
-security requirements also apply, including restrictions on URL
-fetching, redirects, special-use destinations, and response sizes.
-
-The authorization endpoint already causes an AS to fetch an arbitrary Client
-Identifier URL in response to an unauthenticated request. This endpoint adds a
-second path with the same exposure, not a new class of risk, and the fetch
-controls an AS applies to CIMD retrieval at the authorization endpoint apply
-here unchanged. The AS SHOULD bound fetch time, document size, dependent
-fetches, and request volume to limit SSRF and denial-of-service risks.
-Attackers can submit unique URLs to avoid cache hits and induce traffic to
-third-party hosts.
+TODO!
 
 # Privacy Considerations {#privacy}
 
-This endpoint returns a machine-readable result to the requester, which makes
-it a more convenient probe than an authorization endpoint error page. The AS
-MUST apply CIMD destination restrictions before any fetch, and reports
-retrieval failures uniformly, so that responses do not reveal which internal
-destinations are reachable.
+TODO!
 
 # IANA Considerations
 
