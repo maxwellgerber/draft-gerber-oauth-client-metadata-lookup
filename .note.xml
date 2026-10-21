@@ -3,5 +3,5 @@
     Web Authorization Protocol Working Group mailing list (oauth@ietf.org),
     which is archived at <eref target="https://mailarchive.ietf.org/arch/browse/oauth/"/>.</t>
 <t>Source for this draft and an issue tracker can be found at
-    <eref target="https://github.com/maxwellgerber/draft-gerber-oauth-client-registration-endpoint"/>.</t>
+    <eref target="https://github.com/maxwellgerber/draft-gerber-oauth-client-metadata-lookup"/>.</t>
 </note>
