@@ -10,6 +10,7 @@ area: "Security"
 workgroup: "Web Authorization Protocol"
 author:
  - fullname: Maxwell Gerber
+   organization: Twilio
    email: mgerber@twilio.com
 normative:
   RFC3986:
