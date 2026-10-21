@@ -29,8 +29,8 @@ Discussion Venues
    archived at https://mailarchive.ietf.org/arch/browse/oauth/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/maxwellgerber/draft-gerber-oauth-client-
-   registration-endpoint.
+   https://github.com/maxwellgerber/draft-gerber-oauth-client-metadata-
+   lookup.
 
 Status of This Memo
 
