@@ -8,8 +8,8 @@ Intended status: Standards Track
 Expires: 24 April 2027
 
 
-                  OAuth Client Configuration Endpoint
-         draft-gerber-oauth-client-registration-endpoint-latest
+                      OAuth Client Metadata Lookup
+            draft-gerber-oauth-client-metadata-lookup-latest
 
 Abstract
 
@@ -68,12 +68,13 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Use Cases
-     3.1.  Configuration Feedback
-     3.2.  Progressive Feature Rollout
-     3.3.  Relationship to Client-Specific AS Metadata
+     3.1.  Clients of Unfamiliar Authorization Servers
+     3.2.  Configuration Feedback
+     3.3.  Progressive Feature Rollout
+     3.4.  Relationship to Client-Specific AS Metadata
    4.  Endpoint Discovery
-   5.  Configuration Request
-   6.  Configuration Response
+   5.  Lookup Request
+   6.  Lookup Response
    7.  Error Response
    8.  Caching
    9.  Cross-Origin Resource Sharing
@@ -91,11 +92,16 @@ Table of Contents
    [I-D.ietf-oauth-client-id-metadata-document] let clients publish
    metadata at a URL used as their client identifier.  The published
    document does not tell a client which values an authorization server
-   (AS) accepts or which defaults it applies.  Discovering a mismatch
-   through a user's authorization attempt can leave that user at an
-   error page.
+   (AS) accepts or which defaults it applies.  A client typically
+   discovers a mismatch only when a user's authorization attempt fails.
 
-   This document defines an unauthenticated client configuration lookup
+   That failure is often invisible to the client.  When the client
+   identifier or redirect URI is the problem, Section 4.1.2.1 of
+   [RFC6749] requires the AS not to redirect back to the client.  The
+   user is left at an AS error page, and the client never learns why the
+   flow stopped.
+
+   This document defines an unauthenticated client metadata lookup
    operation.  CIMD is the principal motivation, but the operation also
    applies to clients registered through Dynamic Client Registration
    (DCR) [RFC7591] or other means, including statically registered
@@ -106,9 +112,9 @@ Table of Contents
    registration access token and can return credentials.  The operation
    defined here is separately discoverable, returns only public
    configuration, and does not require prior DCR.  It does not change
-   RFC 7592 authentication or management operations.  An AS MAY host
-   both operations at the same URL if their requirements remain
-   distinct.
+   RFC 7592 authentication or management operations.  The two operations
+   MUST NOT share a URL, so that the presence of an Authorization header
+   never determines whether a response includes credentials.
 
 2.  Conventions and Definitions
 
@@ -128,28 +134,53 @@ Table of Contents
 
 3.  Use Cases
 
-3.1.  Configuration Feedback
+3.1.  Clients of Unfamiliar Authorization Servers
+
+   The Model Context Protocol (MCP) authorization specification
+   [MCP-Auth] uses CIMD as its preferred registration mechanism for
+   clients with no prior relationship to a server.  An MCP client, such
+   as a desktop agent or an IDE, publishes one metadata document and
+   presents it to whichever authorization servers protect the MCP
+   servers its users add.  The client's developer cannot test against
+   each of those authorization servers in advance, and each can apply
+   its own policy to the same document: one rejects loopback redirect
+   URIs, another requires a particular client authentication method.
+
+   With this endpoint, the client can look up its configuration when a
+   user adds a server, before sending the user to the authorization
+   endpoint.  A rejected document becomes an error the client can show,
+   log, or report, instead of a dead end at the AS's error page.
+
+3.2.  Configuration Feedback
 
    A client retrieves its configuration before involving an end user.  A
    CIMD client can compare the returned metadata with its published
    document; other clients can inspect the configuration established
    through DCR or provisioning.
 
-3.2.  Progressive Feature Rollout
+3.3.  Progressive Feature Rollout
 
-   An AS can enable a feature for selected clients and expose the
-   resulting configuration through this endpoint.  For example,
-   token_endpoint_auth_signing_alg, defined by [OpenID.Registration],
-   reports the configured signing algorithm for client authentication
-   JWTs.  Clients known to support a new algorithm can receive that
-   configuration while others retain the previous value.
+   An AS can change a client's configuration as part of rolling out a
+   new requirement and expose the result through this endpoint, so
+   clients can adapt without first failing a user's request.
 
-   This endpoint reports configuration; it does not establish client
-   capabilities.  Selection MUST respect the semantics of each metadata
-   field and the client's established capabilities.  Clients must
-   retrieve configuration to observe changes.
+   For example, an AS migrating to Pushed Authorization Requests (PAR)
+   [RFC9126] can set the require_pushed_authorization_requests client
+   metadata value, defined in Section 6 of [RFC9126], for one cohort of
+   clients at a time.  A client that finds true in its lookup response
+   knows it must use PAR at this AS.  Without the lookup, the first
+   signal is a rejected authorization request in front of a user.
 
-3.3.  Relationship to Client-Specific AS Metadata
+   Rollout through this endpoint suits fields whose values reflect AS
+   policy, such as requirements the AS imposes on the client.  It is not
+   a way for an AS to change values a client declares about itself, such
+   as its redirect URIs or the algorithms it signs with.  Whether AS
+   policy can set a given field is governed by that field's definition,
+   not by this specification.  Clients learn of changes only by
+   repeating the lookup; this specification defines no change
+   notification.
+
+3.4.  Relationship to Client-Specific AS Metadata
 
    [Watson-AS-Metadata] proposes a client_id parameter on AS metadata
    requests so an AS can tailor its advertised capabilities to a client.
@@ -157,19 +188,21 @@ Table of Contents
    AS metadata fields; this endpoint describes the client using client
    registration metadata fields.
 
-   For example, token_endpoint_auth_signing_alg_values_supported
-   advertises AS capabilities, while token_endpoint_auth_signing_alg
-   reports the client's configured algorithm.  Deployments using both
-   mechanisms MUST keep the two views consistent.  Neither mechanism
-   requires the other.
+   For example, require_pushed_authorization_requests is defined both as
+   AS metadata (Section 5 of [RFC9126]), stating whether the AS requires
+   PAR of every client, and as client metadata (Section 6 of [RFC9126]),
+   stating whether the AS requires PAR of one client.  AS metadata
+   reports the first; this endpoint reports the second.  Deployments
+   using both mechanisms MUST keep the two views consistent.  Neither
+   mechanism requires the other.
 
 4.  Endpoint Discovery
 
    An AS supporting this specification MUST include the following member
    in its AS metadata [RFC8414]:
 
-   client_configuration_endpoint:  HTTPS URL of the public client
-      configuration endpoint.  The URL MUST NOT contain a fragment or a
+   client_metadata_lookup_endpoint:  HTTPS URL of the client metadata
+      lookup endpoint.  The URL MUST NOT contain a fragment or a
       client_id query parameter.
 
    This member is OPTIONAL for authorization servers generally.  Its
@@ -177,7 +210,7 @@ Table of Contents
    registration_endpoint nor client_id_metadata_document_supported alone
    implies support.
 
-5.  Configuration Request
+5.  Lookup Request
 
    The client sends an HTTP GET request to the advertised endpoint with
    exactly one client_id query parameter.  Its value is the client
@@ -185,7 +218,7 @@ Table of Contents
    Appendix B of [RFC6749].  The parameter is appended to any existing
    query component.
 
-   GET /client-configuration?client_id=native-app-42 HTTP/1.1
+   GET /client-metadata?client_id=native-app-42 HTTP/1.1
    Host: as.example
    Accept: application/json
 
@@ -205,7 +238,7 @@ Table of Contents
    controls are permitted; lookup MUST NOT force a refresh that bypasses
    CIMD caching policy.
 
-6.  Configuration Response
+6.  Lookup Response
 
    A successful response MUST use HTTP 200 and application/json
    [RFC8259].  The body is an object containing client_id and a public
@@ -278,14 +311,27 @@ Table of Contents
       of the error name defined by [RFC7591] to this endpoint.
 
    Unknown, disallowed, and non-disclosable clients MUST receive
-   indistinguishable invalid_client responses.  Metadata diagnostics MAY
+   indistinguishable invalid_client responses.
+
+   A Client ID Metadata Document is public and its Client Identifier URL
+   is self-asserted, so explaining why the AS rejected the document
+   discloses little the requester could not already see.  When the AS
+   rejects a CIMD client's document, it SHOULD return
+   invalid_client_metadata with an error_description identifying the
+   failing member or check.  For other clients, metadata diagnostics MAY
    be returned only when safe for an unauthenticated requester;
    otherwise the AS MUST return invalid_client without explanatory
-   detail.  Errors MUST NOT expose internal network details or upstream
-   response bodies.
+   detail.
 
-   For example, when a publicly hosted CIMD cannot be retrieved and the
-   AS can safely disclose that fact:
+   Errors MUST NOT expose internal network details or upstream response
+   bodies.  The AS MUST report CIMD retrieval failures without
+   distinguishing their cause, such as DNS failure, connection refusal,
+   timeout, or upstream HTTP status, so that the endpoint does not act
+   as a network reachability oracle (Section 10).
+
+   For example, when a CIMD client's document declares a shared-secret
+   authentication method, which
+   [I-D.ietf-oauth-client-id-metadata-document] does not permit:
 
    HTTP/1.1 400 Bad Request
    Content-Type: application/json
@@ -294,7 +340,8 @@ Table of Contents
 
    {
      "error": "invalid_client_metadata",
-     "error_description": "Metadata document could not be retrieved."
+     "error_description":
+       "token_endpoint_auth_method client_secret_basic not permitted"
    }
 
    Rate limits and temporary AS failures MAY use HTTP 429 and 503
@@ -304,8 +351,8 @@ Table of Contents
 
 8.  Caching
 
-   Following the CIMD caching model, successful configuration responses
-   MAY be cached.  The AS SHOULD provide HTTP cache headers [RFC9111]
+   Following the CIMD caching model, successful lookup responses MAY be
+   cached.  The AS SHOULD provide HTTP cache headers [RFC9111]
    reflecting source freshness and configuration policy; it MUST NOT
    blindly copy a source CIMD's cache headers.  Clients SHOULD respect
    these headers but MAY apply their own bounds on cache lifetime. max-
@@ -337,11 +384,22 @@ Table of Contents
    restrictions on URL fetching, redirects, special-use destinations,
    and response sizes.
 
-   This endpoint adds an unauthenticated path to metadata retrieval.
-   The AS SHOULD bound fetch time, document size, dependent fetches, and
-   request volume to limit SSRF and denial-of-service risks.  Attackers
-   can submit unique URLs to avoid cache hits and induce traffic to
-   third-party hosts.
+   The authorization endpoint already causes an AS to fetch an arbitrary
+   Client Identifier URL in response to an unauthenticated request.
+   This endpoint adds a second path with the same exposure, not a new
+   class of risk, and the fetch controls an AS applies to CIMD retrieval
+   at the authorization endpoint apply here unchanged.  The AS SHOULD
+   bound fetch time, document size, dependent fetches, and request
+   volume to limit SSRF and denial-of-service risks.  Attackers can
+   submit unique URLs to avoid cache hits and induce traffic to third-
+   party hosts.
+
+   One difference warrants attention.  This endpoint returns a machine-
+   readable result to the requester, which makes it a more convenient
+   probe than an authorization endpoint error page.  The AS MUST apply
+   CIMD destination restrictions before any fetch, and reports retrieval
+   failures uniformly (Section 7), so that responses do not reveal which
+   internal destinations are reachable.
 
    Public source metadata does not make an AS's private overrides or
    association with a client public.  The AS MUST assess returned fields
@@ -361,23 +419,22 @@ Table of Contents
    This document requests the following registration in the OAuth
    Authorization Server Metadata registry established by [RFC8414]:
 
-   Metadata Name:  client_configuration_endpoint
+   Metadata Name:  client_metadata_lookup_endpoint
 
-   Metadata Description:  URL of the public client configuration
-      endpoint.
+   Metadata Description:  URL of the client metadata lookup endpoint.
 
    Change Controller:  IETF
 
    Specification Document:  Section 4 of this document.
 
-   This document also requests that IANA add "client configuration
+   This document also requests that IANA add "client metadata lookup
    endpoint" as a usage location for invalid_request, invalid_client,
    and invalid_client_metadata in the OAuth Extensions Error Registry,
    with this document as the related protocol extension and Section 7 as
    the reference.  Existing usages and references are retained.  The
    registration of client_id in the OAuth Parameters registry is
-   extended to include client configuration requests, with the
-   Configuration Request section as an additional reference.
+   extended to include client metadata lookup requests, with Section 5
+   as an additional reference.
 
 12.  References
 
@@ -435,17 +492,20 @@ Table of Contents
 
 12.2.  Informative References
 
-   [OpenID.Registration]
-              Sakimura, N., Bradley, J., and M. B. Jones, "OpenID
-              Connect Dynamic Client Registration 1.0 incorporating
-              errata set 2", 15 December 2023,
-              <https://openid.net/specs/openid-connect-registration-
-              1_0.html>.
+   [MCP-Auth] Model Context Protocol, "Model Context Protocol:
+              Authorization", 25 November 2025,
+              <https://modelcontextprotocol.io/specification/2025-11-
+              25/basic/authorization>.
 
    [RFC7592]  Richer, J., Ed., Jones, M., Bradley, J., and M. Machulak,
               "OAuth 2.0 Dynamic Client Registration Management
               Protocol", RFC 7592, DOI 10.17487/RFC7592, July 2015,
               <https://www.rfc-editor.org/rfc/rfc7592>.
+
+   [RFC9126]  Lodderstedt, T., Campbell, B., Sakimura, N., Tonge, D.,
+              and F. Skokan, "OAuth 2.0 Pushed Authorization Requests",
+              RFC 9126, DOI 10.17487/RFC9126, September 2021,
+              <https://www.rfc-editor.org/rfc/rfc9126>.
 
    [Watson-AS-Metadata]
               Watson, N., "OAuth Authorization Server Metadata Client ID

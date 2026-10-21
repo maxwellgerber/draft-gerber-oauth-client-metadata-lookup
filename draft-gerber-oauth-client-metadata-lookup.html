@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>OAuth Client Configuration Endpoint</title>
+<title>OAuth Client Metadata Lookup</title>
 <meta content="Maxwell Gerber" name="author">
 <meta content="
        This document defines an OAuth endpoint for retrieving a public subset of a
@@ -14,7 +14,7 @@ attempt and supports progressive feature rollout. The endpoint applies to
 Client ID Metadata Document clients and clients registered through other means. 
     " name="description">
 <meta content="xml2rfc 3.34.1" name="generator">
-<meta content="draft-gerber-oauth-client-registration-endpoint-latest" name="ietf.draft">
+<meta content="draft-gerber-oauth-client-metadata-lookup-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.34.1
     Python 3.14.8
@@ -30,7 +30,7 @@ Client ID Metadata Document clients and clients registered through other means.
     requests 2.33.1
     wcwidth 0.9.2
 -->
-<link href="draft-gerber-oauth-client-registration-endpoint.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-gerber-oauth-client-metadata-lookup.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1043,7 +1043,7 @@ svg {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">Client Configuration</td>
+<td class="center">Client Metadata Lookup</td>
 <td class="right">October 2026</td>
 </tr></thead>
 <tfoot><tr>
@@ -1058,7 +1058,7 @@ svg {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Web Authorization Protocol</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-gerber-oauth-client-registration-endpoint-latest</dd>
+<dd class="internet-draft">draft-gerber-oauth-client-metadata-lookup-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2026-10-21" class="published">21 October 2026</time>
@@ -1075,7 +1075,7 @@ svg {
 </dd>
 </dl>
 </div>
-<h1 id="title">OAuth Client Configuration Endpoint</h1>
+<h1 id="title">OAuth Client Metadata Lookup</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This document defines an OAuth endpoint for retrieving a public subset of a
@@ -1153,13 +1153,16 @@ Client ID Metadata Document clients and clients registered through other means.<
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-use-cases" class="internal xref">Use Cases</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
-                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-configuration-feedback" class="internal xref">Configuration Feedback</a></p>
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-clients-of-unfamiliar-autho" class="internal xref">Clients of Unfamiliar Authorization Servers</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
-                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-progressive-feature-rollout" class="internal xref">Progressive Feature Rollout</a></p>
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-configuration-feedback" class="internal xref">Configuration Feedback</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
-                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-relationship-to-client-spec" class="internal xref">Relationship to Client-Specific AS Metadata</a></p>
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-progressive-feature-rollout" class="internal xref">Progressive Feature Rollout</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-relationship-to-client-spec" class="internal xref">Relationship to Client-Specific AS Metadata</a></p>
 </li>
             </ul>
 </li>
@@ -1167,10 +1170,10 @@ Client ID Metadata Document clients and clients registered through other means.<
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-endpoint-discovery" class="internal xref">Endpoint Discovery</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-configuration-request" class="internal xref">Configuration Request</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-lookup-request" class="internal xref">Lookup Request</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-configuration-response" class="internal xref">Configuration Response</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-lookup-response" class="internal xref">Lookup Response</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-error-response" class="internal xref">Error Response</a></p>
@@ -1217,19 +1220,23 @@ Client ID Metadata Document clients and clients registered through other means.<
 <span>[<a href="#I-D.ietf-oauth-client-id-metadata-document" class="cite xref">I-D.ietf-oauth-client-id-metadata-document</a>]</span> let clients publish metadata at a
 URL used as their client identifier. The published document does not tell a
 client which values an authorization server (AS) accepts or which defaults it
-applies. Discovering a mismatch through a user's authorization attempt can leave
-that user at an error page.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">This document defines an unauthenticated client configuration lookup operation.
-CIMD is the principal motivation, but the operation also applies to clients
+applies. A client typically discovers a mismatch only when a user's
+authorization attempt fails.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">That failure is often invisible to the client. When the client identifier or
+redirect URI is the problem, Section 4.1.2.1 of <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> requires the AS not
+to redirect back to the client. The user is left at an AS error page, and the
+client never learns why the flow stopped.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This document defines an unauthenticated client metadata lookup operation. CIMD
+is the principal motivation, but the operation also applies to clients
 registered through Dynamic Client Registration (DCR) <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> or other means,
-including statically registered public clients.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">RFC 7592 Section 2.1 defines a similar Client Read Request at a Client
+including statically registered public clients.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">RFC 7592 Section 2.1 defines a similar Client Read Request at a Client
 Configuration Endpoint <span>[<a href="#RFC7592" class="cite xref">RFC7592</a>]</span>. That operation requires a registration
 access token and can return credentials. The operation defined here is
 separately discoverable, returns only public configuration, and does not require
 prior DCR. It does not change RFC 7592 authentication or management operations.
-An AS <span class="bcp14">MAY</span> host both operations at the same URL if their requirements remain
-distinct.<a href="#section-1-3" class="pilcrow">¶</a></p>
+The two operations <span class="bcp14">MUST NOT</span> share a URL, so that the presence of an
+Authorization header never determines whether a response includes credentials.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1253,45 +1260,72 @@ policy. It excludes user grants and transaction-specific authorization decisions
       <h2 id="name-use-cases">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-use-cases" class="section-name selfRef">Use Cases</a>
       </h2>
-<div id="configuration-feedback">
+<div id="clients-of-unfamiliar-authorization-servers">
 <section id="section-3.1">
-        <h3 id="name-configuration-feedback">
-<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-configuration-feedback" class="section-name selfRef">Configuration Feedback</a>
+        <h3 id="name-clients-of-unfamiliar-autho">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-clients-of-unfamiliar-autho" class="section-name selfRef">Clients of Unfamiliar Authorization Servers</a>
         </h3>
-<p id="section-3.1-1">A client retrieves its configuration before involving an end user. A CIMD
+<p id="section-3.1-1">The Model Context Protocol (MCP) authorization specification <span>[<a href="#MCP-Auth" class="cite xref">MCP-Auth</a>]</span> uses
+CIMD as its preferred registration mechanism for clients with no prior
+relationship to a server. An MCP client, such as a desktop agent or an IDE,
+publishes one metadata document and presents it to whichever authorization
+servers protect the MCP servers its users add. The client's developer cannot
+test against each of those authorization servers in advance, and each can apply
+its own policy to the same document: one rejects loopback redirect URIs,
+another requires a particular client authentication method.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">With this endpoint, the client can look up its configuration when a user adds a
+server, before sending the user to the authorization endpoint. A rejected
+document becomes an error the client can show, log, or report, instead of a
+dead end at the AS's error page.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="configuration-feedback">
+<section id="section-3.2">
+        <h3 id="name-configuration-feedback">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-configuration-feedback" class="section-name selfRef">Configuration Feedback</a>
+        </h3>
+<p id="section-3.2-1">A client retrieves its configuration before involving an end user. A CIMD
 client can compare the returned metadata with its published document; other
-clients can inspect the configuration established through DCR or provisioning.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+clients can inspect the configuration established through DCR or provisioning.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="progressive-feature-rollout">
-<section id="section-3.2">
+<section id="section-3.3">
         <h3 id="name-progressive-feature-rollout">
-<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-progressive-feature-rollout" class="section-name selfRef">Progressive Feature Rollout</a>
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-progressive-feature-rollout" class="section-name selfRef">Progressive Feature Rollout</a>
         </h3>
-<p id="section-3.2-1">An AS can enable a feature for selected clients and expose the resulting
-configuration through this endpoint. For example,
-<code>token_endpoint_auth_signing_alg</code>, defined by <span>[<a href="#OpenID.Registration" class="cite xref">OpenID.Registration</a>]</span>, reports
-the configured signing algorithm for client authentication JWTs. Clients known
-to support a new algorithm can receive that configuration while others retain
-the previous value.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">This endpoint reports configuration; it does not establish client capabilities.
-Selection <span class="bcp14">MUST</span> respect the semantics of each metadata field and the client's
-established capabilities. Clients must retrieve configuration to observe changes.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.3-1">An AS can change a client's configuration as part of rolling out a new
+requirement and expose the result through this endpoint, so clients can adapt
+without first failing a user's request.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">For example, an AS migrating to Pushed Authorization Requests (PAR) <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>
+can set the <code>require_pushed_authorization_requests</code> client metadata value,
+defined in Section 6 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>, for one cohort of clients at a time. A
+client that finds <code>true</code> in its lookup response knows it must use PAR at this
+AS. Without the lookup, the first signal is a rejected authorization request in
+front of a user.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">Rollout through this endpoint suits fields whose values reflect AS policy, such
+as requirements the AS imposes on the client. It is not a way for an AS to
+change values a client declares about itself, such as its redirect URIs or the
+algorithms it signs with. Whether AS policy can set a given field is governed
+by that field's definition, not by this specification. Clients learn of changes
+only by repeating the lookup; this specification defines no change notification.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="relationship-to-client-specific-as-metadata">
-<section id="section-3.3">
+<section id="section-3.4">
         <h3 id="name-relationship-to-client-spec">
-<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-relationship-to-client-spec" class="section-name selfRef">Relationship to Client-Specific AS Metadata</a>
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-relationship-to-client-spec" class="section-name selfRef">Relationship to Client-Specific AS Metadata</a>
         </h3>
-<p id="section-3.3-1"><span>[<a href="#Watson-AS-Metadata" class="cite xref">Watson-AS-Metadata</a>]</span> proposes a <code>client_id</code> parameter on AS metadata requests
+<p id="section-3.4-1"><span>[<a href="#Watson-AS-Metadata" class="cite xref">Watson-AS-Metadata</a>]</span> proposes a <code>client_id</code> parameter on AS metadata requests
 so an AS can tailor its advertised capabilities to a client. The mechanisms
 are complementary: AS metadata describes the AS using AS metadata fields;
-this endpoint describes the client using client registration metadata fields.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
-<p id="section-3.3-2">For example, <code>token_endpoint_auth_signing_alg_values_supported</code> advertises AS
-capabilities, while <code>token_endpoint_auth_signing_alg</code> reports the client's
-configured algorithm. Deployments using both mechanisms <span class="bcp14">MUST</span> keep the two
-views consistent. Neither mechanism requires the other.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+this endpoint describes the client using client registration metadata fields.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
+<p id="section-3.4-2">For example, <code>require_pushed_authorization_requests</code> is defined both as AS
+metadata (Section 5 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>), stating whether the AS requires PAR of
+every client, and as client metadata (Section 6 of <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>), stating
+whether the AS requires PAR of one client. AS metadata reports the first; this
+endpoint reports the second. Deployments using both mechanisms <span class="bcp14">MUST</span> keep the
+two views consistent. Neither mechanism requires the other.<a href="#section-3.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1304,10 +1338,10 @@ views consistent. Neither mechanism requires the other.<a href="#section-3.3-2" 
 <p id="section-4-1">An AS supporting this specification <span class="bcp14">MUST</span> include the following member in its
 AS metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>:<a href="#section-4-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-4-2">
-        <dt id="section-4-2.1">client_configuration_endpoint:</dt>
+        <dt id="section-4-2.1">client_metadata_lookup_endpoint:</dt>
         <dd style="margin-left: 1.5em" id="section-4-2.2">
-          <p id="section-4-2.2.1">HTTPS URL of the public client configuration endpoint. The URL <span class="bcp14">MUST NOT</span>
-contain a fragment or a <code>client_id</code> query parameter.<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-4-2.2.1">HTTPS URL of the client metadata lookup endpoint. The URL <span class="bcp14">MUST NOT</span> contain a
+fragment or a <code>client_id</code> query parameter.<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
 </dd>
       <dd class="break"></dd>
 </dl>
@@ -1316,10 +1350,10 @@ advertises the operation defined here. Neither <code>registration_endpoint</code
 <code>client_id_metadata_document_supported</code> alone implies support.<a href="#section-4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="configuration-request">
+<div id="request">
 <section id="section-5">
-      <h2 id="name-configuration-request">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-configuration-request" class="section-name selfRef">Configuration Request</a>
+      <h2 id="name-lookup-request">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-lookup-request" class="section-name selfRef">Lookup Request</a>
       </h2>
 <p id="section-5-1">The client sends an HTTP GET request to the advertised endpoint with exactly
 one <code>client_id</code> query parameter. Its value is the client identifier defined in
@@ -1327,7 +1361,7 @@ RFC 6749 Section 2.2, encoded according to Appendix B of <span>[<a href="#RFC674
 parameter is appended to any existing query component.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <div class="lang-http-message sourcecode" id="section-5-2">
 <pre>
-GET /client-configuration?client_id=native-app-42 HTTP/1.1
+GET /client-metadata?client_id=native-app-42 HTTP/1.1
 Host: as.example
 Accept: application/json
 </pre><a href="#section-5-2" class="pilcrow">¶</a>
@@ -1345,10 +1379,10 @@ consent, or grant access. Normal metadata caching and abuse controls are
 permitted; lookup <span class="bcp14">MUST NOT</span> force a refresh that bypasses CIMD caching policy.<a href="#section-5-5" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="configuration-response">
+<div id="lookup-response">
 <section id="section-6">
-      <h2 id="name-configuration-response">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-configuration-response" class="section-name selfRef">Configuration Response</a>
+      <h2 id="name-lookup-response">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-lookup-response" class="section-name selfRef">Lookup Response</a>
       </h2>
 <p id="section-6-1">A successful response <span class="bcp14">MUST</span> use HTTP 200 and <code>application/json</code> <span>[<a href="#RFC8259" class="cite xref">RFC8259</a>]</span>.
 The body is an object containing <code>client_id</code> and a public subset of effective
@@ -1423,13 +1457,23 @@ This extends the use of the error name defined by <span>[<a href="#RFC7591" clas
       <dd class="break"></dd>
 </dl>
 <p id="section-7-4">Unknown, disallowed, and non-disclosable clients <span class="bcp14">MUST</span> receive indistinguishable
-<code>invalid_client</code> responses. Metadata diagnostics <span class="bcp14">MAY</span> be returned only when safe
-for an unauthenticated requester; otherwise the AS <span class="bcp14">MUST</span> return <code>invalid_client</code>
-without explanatory detail. Errors <span class="bcp14">MUST NOT</span> expose internal network details or
-upstream response bodies.<a href="#section-7-4" class="pilcrow">¶</a></p>
-<p id="section-7-5">For example, when a publicly hosted CIMD cannot be retrieved and the AS can
-safely disclose that fact:<a href="#section-7-5" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-7-6">
+<code>invalid_client</code> responses.<a href="#section-7-4" class="pilcrow">¶</a></p>
+<p id="section-7-5">A Client ID Metadata Document is public and its Client Identifier URL is
+self-asserted, so explaining why the AS rejected the document discloses little
+the requester could not already see. When the AS rejects a CIMD client's
+document, it <span class="bcp14">SHOULD</span> return <code>invalid_client_metadata</code> with an <code>error_description</code>
+identifying the failing member or check. For other clients, metadata
+diagnostics <span class="bcp14">MAY</span> be returned only when safe for an unauthenticated requester;
+otherwise the AS <span class="bcp14">MUST</span> return <code>invalid_client</code> without explanatory detail.<a href="#section-7-5" class="pilcrow">¶</a></p>
+<p id="section-7-6">Errors <span class="bcp14">MUST NOT</span> expose internal network details or upstream response bodies.
+The AS <span class="bcp14">MUST</span> report CIMD retrieval failures without distinguishing their cause,
+such as DNS failure, connection refusal, timeout, or upstream HTTP status, so
+that the endpoint does not act as a network reachability oracle
+(<a href="#security" class="auto internal xref">Section 10</a>).<a href="#section-7-6" class="pilcrow">¶</a></p>
+<p id="section-7-7">For example, when a CIMD client's document declares a shared-secret
+authentication method, which <span>[<a href="#I-D.ietf-oauth-client-id-metadata-document" class="cite xref">I-D.ietf-oauth-client-id-metadata-document</a>]</span>
+does not permit:<a href="#section-7-7" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-7-8">
 <pre>
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
@@ -1438,13 +1482,14 @@ Access-Control-Allow-Origin: *
 
 {
   "error": "invalid_client_metadata",
-  "error_description": "Metadata document could not be retrieved."
+  "error_description":
+    "token_endpoint_auth_method client_secret_basic not permitted"
 }
-</pre><a href="#section-7-6" class="pilcrow">¶</a>
+</pre><a href="#section-7-8" class="pilcrow">¶</a>
 </div>
-<p id="section-7-7">Rate limits and temporary AS failures <span class="bcp14">MAY</span> use HTTP 429 and 503 respectively.
+<p id="section-7-9">Rate limits and temporary AS failures <span class="bcp14">MAY</span> use HTTP 429 and 503 respectively.
 Clients <span class="bcp14">MUST</span> handle HTTP errors without JSON bodies. An AS failure does not
-necessarily indicate a defect in the client's metadata.<a href="#section-7-7" class="pilcrow">¶</a></p>
+necessarily indicate a defect in the client's metadata.<a href="#section-7-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="caching">
@@ -1452,8 +1497,8 @@ necessarily indicate a defect in the client's metadata.<a href="#section-7-7" cl
       <h2 id="name-caching">
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-caching" class="section-name selfRef">Caching</a>
       </h2>
-<p id="section-8-1">Following the CIMD caching model, successful configuration responses <span class="bcp14">MAY</span> be
-cached. The AS <span class="bcp14">SHOULD</span> provide HTTP cache headers <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> reflecting source
+<p id="section-8-1">Following the CIMD caching model, successful lookup responses <span class="bcp14">MAY</span> be cached.
+The AS <span class="bcp14">SHOULD</span> provide HTTP cache headers <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> reflecting source
 freshness and configuration policy; it <span class="bcp14">MUST NOT</span> blindly copy a source CIMD's
 cache headers. Clients <span class="bcp14">SHOULD</span> respect these headers but <span class="bcp14">MAY</span> apply their own
 bounds on cache lifetime. <code>max-age=300</code> above is illustrative, not a default.<a href="#section-8-1" class="pilcrow">¶</a></p>
@@ -1478,7 +1523,7 @@ If an AS dynamically selects an allowed origin, it <span class="bcp14">MUST</spa
 CORS is not authentication and does not constrain non-browser callers.<a href="#section-9-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="security-and-privacy-considerations">
+<div id="security">
 <section id="section-10">
       <h2 id="name-security-and-privacy-consid">
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-security-and-privacy-consid" class="section-name selfRef">Security and Privacy Considerations</a>
@@ -1486,18 +1531,28 @@ CORS is not authentication and does not constrain non-browser callers.<a href="#
 <p id="section-10-1">The security considerations of <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span> apply. For CIMD clients, the CIMD
 security and privacy requirements also apply, including restrictions on URL
 fetching, redirects, special-use destinations, and response sizes.<a href="#section-10-1" class="pilcrow">¶</a></p>
-<p id="section-10-2">This endpoint adds an unauthenticated path to metadata retrieval. The AS <span class="bcp14">SHOULD</span>
-bound fetch time, document size, dependent fetches, and request volume to limit
-SSRF and denial-of-service risks. Attackers can submit unique URLs to avoid
-cache hits and induce traffic to third-party hosts.<a href="#section-10-2" class="pilcrow">¶</a></p>
-<p id="section-10-3">Public source metadata does not make an AS's private overrides or association
+<p id="section-10-2">The authorization endpoint already causes an AS to fetch an arbitrary Client
+Identifier URL in response to an unauthenticated request. This endpoint adds a
+second path with the same exposure, not a new class of risk, and the fetch
+controls an AS applies to CIMD retrieval at the authorization endpoint apply
+here unchanged. The AS <span class="bcp14">SHOULD</span> bound fetch time, document size, dependent
+fetches, and request volume to limit SSRF and denial-of-service risks.
+Attackers can submit unique URLs to avoid cache hits and induce traffic to
+third-party hosts.<a href="#section-10-2" class="pilcrow">¶</a></p>
+<p id="section-10-3">One difference warrants attention. This endpoint returns a machine-readable
+result to the requester, which makes it a more convenient probe than an
+authorization endpoint error page. The AS <span class="bcp14">MUST</span> apply CIMD destination
+restrictions before any fetch, and reports retrieval failures uniformly
+(<a href="#errors" class="auto internal xref">Section 7</a>), so that responses do not reveal which internal destinations are
+reachable.<a href="#section-10-3" class="pilcrow">¶</a></p>
+<p id="section-10-4">Public source metadata does not make an AS's private overrides or association
 with a client public. The AS <span class="bcp14">MUST</span> assess returned fields for disclosure,
 including ordinary metadata such as scopes and redirect URIs. Responses <span class="bcp14">MUST NOT</span> reveal user grants, prior client use, or first- or last-use timestamps.
 Acceptance results can reveal policy or rollout membership; they are not access
-credentials. Clients <span class="bcp14">MUST NOT</span> downgrade security merely because lookup fails.<a href="#section-10-3" class="pilcrow">¶</a></p>
-<p id="section-10-4">CIMD fetches can reveal the AS's network identity and fetch timing to the
+credentials. Clients <span class="bcp14">MUST NOT</span> downgrade security merely because lookup fails.<a href="#section-10-4" class="pilcrow">¶</a></p>
+<p id="section-10-5">CIMD fetches can reveal the AS's network identity and fetch timing to the
 metadata host. Query strings can expose client identifiers in logs. Operators
-<span class="bcp14">SHOULD</span> minimize unnecessary fetches and retention of identifying log data.<a href="#section-10-4" class="pilcrow">¶</a></p>
+<span class="bcp14">SHOULD</span> minimize unnecessary fetches and retention of identifying log data.<a href="#section-10-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -1510,12 +1565,12 @@ Server Metadata registry established by <span>[<a href="#RFC8414" class="cite xr
 <span class="break"></span><dl class="dlParallel" id="section-11-2">
         <dt id="section-11-2.1">Metadata Name:</dt>
         <dd style="margin-left: 1.5em" id="section-11-2.2">
-          <p id="section-11-2.2.1"><code>client_configuration_endpoint</code><a href="#section-11-2.2.1" class="pilcrow">¶</a></p>
+          <p id="section-11-2.2.1"><code>client_metadata_lookup_endpoint</code><a href="#section-11-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-11-2.3">Metadata Description:</dt>
         <dd style="margin-left: 1.5em" id="section-11-2.4">
-          <p id="section-11-2.4.1">URL of the public client configuration endpoint.<a href="#section-11-2.4.1" class="pilcrow">¶</a></p>
+          <p id="section-11-2.4.1">URL of the client metadata lookup endpoint.<a href="#section-11-2.4.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 <dt id="section-11-2.5">Change Controller:</dt>
@@ -1529,13 +1584,13 @@ Server Metadata registry established by <span>[<a href="#RFC8414" class="cite xr
 </dd>
       <dd class="break"></dd>
 </dl>
-<p id="section-11-3">This document also requests that IANA add "client configuration endpoint" as
+<p id="section-11-3">This document also requests that IANA add "client metadata lookup endpoint" as
 a usage location for <code>invalid_request</code>, <code>invalid_client</code>, and
 <code>invalid_client_metadata</code> in the OAuth Extensions Error Registry, with this
 document as the related protocol extension and <a href="#errors" class="auto internal xref">Section 7</a> as the reference.
 Existing usages and references are retained. The registration of <code>client_id</code>
-in the OAuth Parameters registry is extended to include client configuration
-requests, with the Configuration Request section as an additional reference.<a href="#section-11-3" class="pilcrow">¶</a></p>
+in the OAuth Parameters registry is extended to include client metadata lookup
+requests, with <a href="#request" class="auto internal xref">Section 5</a> as an additional reference.<a href="#section-11-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-combined-references">
@@ -1598,13 +1653,17 @@ requests, with the Configuration Request section as an additional reference.<a h
 <a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
-<dt id="OpenID.Registration">[OpenID.Registration]</dt>
+<dt id="MCP-Auth">[MCP-Auth]</dt>
         <dd>
-<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"OpenID Connect Dynamic Client Registration 1.0 incorporating errata set 2"</span>, <time datetime="2023-12-15" class="refDate">15 December 2023</time>, <span>&lt;<a href="https://openid.net/specs/openid-connect-registration-1_0.html">https://openid.net/specs/openid-connect-registration-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Model Context Protocol</span>, <span class="refTitle">"Model Context Protocol: Authorization"</span>, <time datetime="2025-11-25" class="refDate">25 November 2025</time>, <span>&lt;<a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization">https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7592">[RFC7592]</dt>
         <dd>
 <span class="refAuthor">Richer, J., Ed.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">M. Machulak</span>, <span class="refTitle">"OAuth 2.0 Dynamic Client Registration Management Protocol"</span>, <span class="seriesInfo">RFC 7592</span>, <span class="seriesInfo">DOI 10.17487/RFC7592</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7592">https://www.rfc-editor.org/rfc/rfc7592</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9126">[RFC9126]</dt>
+        <dd>
+<span class="refAuthor">Lodderstedt, T.</span>, <span class="refAuthor">Campbell, B.</span>, <span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Tonge, D.</span>, and <span class="refAuthor">F. Skokan</span>, <span class="refTitle">"OAuth 2.0 Pushed Authorization Requests"</span>, <span class="seriesInfo">RFC 9126</span>, <span class="seriesInfo">DOI 10.17487/RFC9126</span>, <time datetime="2021-09" class="refDate">September 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9126">https://www.rfc-editor.org/rfc/rfc9126</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="Watson-AS-Metadata">[Watson-AS-Metadata]</dt>
       <dd>
