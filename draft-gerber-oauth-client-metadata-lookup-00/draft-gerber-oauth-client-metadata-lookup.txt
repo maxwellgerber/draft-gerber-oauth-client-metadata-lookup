@@ -3,8 +3,8 @@
 
 
 Web Authorization Protocol                                     M. Gerber
-Internet-Draft                                           21 October 2026
-Intended status: Standards Track                                        
+Internet-Draft                                                    Twilio
+Intended status: Standards Track                         21 October 2026
 Expires: 24 April 2027
 
 
@@ -491,4 +491,5 @@ Acknowledgments
 Author's Address
 
    Maxwell Gerber
-   Email: maxwell.gerber42@gmail.com
+   Twilio
+   Email: mgerber@twilio.com
