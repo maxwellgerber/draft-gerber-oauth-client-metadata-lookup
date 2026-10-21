@@ -10,7 +10,7 @@ area: "Security"
 workgroup: "Web Authorization Protocol"
 author:
  - fullname: Maxwell Gerber
-   email: maxwell.gerber42@gmail.com
+   email: mgerber@twilio.com
 normative:
   RFC3986:
   RFC6749:
