@@ -12,8 +12,6 @@ author:
  - fullname: Maxwell Gerber
    email: maxwell.gerber42@gmail.com
 normative:
-  RFC2119:
-  RFC8174:
   RFC3986:
   RFC6749:
   RFC7591:
