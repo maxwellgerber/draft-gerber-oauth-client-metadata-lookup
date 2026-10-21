@@ -6,8 +6,8 @@ docname: draft-gerber-oauth-client-registration-endpoint-latest
 submissiontype: IETF
 date: 2026-10-21
 v: 3
-area: Security
-workgroup: Web Authorization Protocol
+area: "Security"
+workgroup: "Web Authorization Protocol"
 author:
  - fullname: Maxwell Gerber
    email: maxwell.gerber42@gmail.com
